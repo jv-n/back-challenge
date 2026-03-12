@@ -1,5 +1,5 @@
-import { Task, TaskSchema } from "./task/task";
-import { User, UserSchema } from "./user/user";
+import { Task, TaskSchema } from "./task";
+import { User, UserSchema } from "./user";
 import { mockUsers, initialTasks } from "./mock";
 import { UserInterface, TaskInterface } from "./mock";
 
