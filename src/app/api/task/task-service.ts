@@ -24,19 +24,19 @@ export class TaskService {
         return await prisma.task.findMany();
     }
     
-    async getTaskById(id: number) {
+    async getTaskById(id: string) {
         return await prisma.task.findUnique({ where: { id } });
     }
 
-    async getTasksByUserId(userId: number) {
+    async getTasksByUserId(userId: string) {
         return await prisma.task.findMany({ where: { userId } });
     }
 
-    async updateTask(id: number, task: UpdateTaskDTO) {
+    async updateTask(id: string, task: UpdateTaskDTO) {
         return await prisma.task.update({ where: { id }, data: task });
     }
 
-    async deleteTask(id: number) {
+    async deleteTask(id: string) {
         return await prisma.task.delete({ where: { id } });
     }
 }

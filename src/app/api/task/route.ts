@@ -5,24 +5,36 @@ import { TaskDTO } from "./task-dto";
 const taskController = new TaskController();
 
 export async function GET(request: NextRequest) {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-    const user_id = searchParams.get("userId");
 
-    if (id) {
-        const task = await taskController.getTaskById(Number(id));
-        return NextResponse.json(task);
-    } else if (user_id) {
-        const tasks = await taskController.getTasksByUserId(Number(user_id));
-        return NextResponse.json(tasks);
-    } else {
+    const searchParams = request.nextUrl.searchParams;
+    const queryUserId = searchParams.get("userId");
+    if(queryUserId) {
+        try {
+            const tasks = await taskController.getTasksByUserId(queryUserId);
+            return NextResponse.json(tasks, { status: 200 });
+        } catch (error) {
+            console.error("Error fetching tasks by user ID:", error);
+            return NextResponse.json({ error: "Failed to fetch tasks" }, { status: 500 });
+        }
+    }
+
+    try{
         const tasks = await taskController.getTasks();
-        return NextResponse.json(tasks);
+        return NextResponse.json(tasks, { status: 200 });
+    } catch (error) {
+        console.error("Error fetching tasks:", error);
+        return NextResponse.json({ error: "Failed to fetch tasks" }, { status: 500 });
     }
 }
 
 export async function POST(request: NextRequest) {
     const data : TaskDTO = await request.json();
-    const newTask = await taskController.createTask(data);
-    return NextResponse.json(newTask);
+    
+    try {
+        const newTask = await taskController.createTask(data);
+        return NextResponse.json(newTask, { status: 201 });
+    } catch (error) {
+        console.error("Error creating task:", error);
+        return NextResponse.json({ error: "Failed to create task" }, { status: 500 });
+    }
 }

@@ -16,19 +16,19 @@ class TaskController {
         return await this.taskService.getTasks();
     }
     
-    async getTaskById(id: number) {
+    async getTaskById(id: string) {
         return await this.taskService.getTaskById(id);
     }
 
-    async getTasksByUserId(userId: number) {
+    async getTasksByUserId(userId: string) {
         return await this.taskService.getTasksByUserId(userId);
     }
 
-    async updateTask(id: number, task: UpdateTaskDTO) {
+    async updateTask(id: string, task: UpdateTaskDTO) {
         return await this.taskService.updateTask(id, task);
     }
 
-    async deleteTask(id: number) {
+    async deleteTask(id: string) {
         return await this.taskService.deleteTask(id);
     }
 }
