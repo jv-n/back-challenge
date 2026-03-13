@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FieldGroup, Field, FieldLabel } from "@/components/ui/field"
 import { Checkbox } from "@/components/ui/checkbox"
-import { mockUsers, type User, type UserInterface } from "@/schema"
+import { mockUsers, type User, type UserInterface } from "@/form_schema"
 import { CheckSquare, LogIn, UserPlus, ArrowLeft } from "lucide-react"
 
 interface LoginFormProps {

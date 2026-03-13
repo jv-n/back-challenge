@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { LoginForm } from "@/components/login-form"
 import { Dashboard } from "@/components/dashboard"
-import { type User, type UserInterface } from "@/schema"
+import { type User, type UserInterface } from "@/form_schema"
 
 export default function Home() {
   const [userLogin, setUserLogin] = useState<UserInterface | null>(null)

@@ -5,9 +5,31 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output = "../src/generated"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+  isAdmin   Boolean  @default(false)
+  tasks     Task[]
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  priority    String
+  status      String   @default("PENDING")
+  deadline    DateTime
+  craeatedAt  DateTime @default(now())
+  fileUrl     String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
 }

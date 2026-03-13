@@ -21,7 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { FieldGroup, Field, FieldLabel } from "@/components/ui/field"
-import { type Task, type User } from "@/schema"
+import { type Task, type User } from "@/form_schema"
 import { Plus } from "lucide-react"
 
 interface CreateTaskFormProps {
