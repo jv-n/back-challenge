@@ -1,20 +1,15 @@
 "use client"
 
 import { useState } from "react"
+import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FieldGroup, Field, FieldLabel } from "@/components/ui/field"
 import { Checkbox } from "@/components/ui/checkbox"
-import { mockUsers, type User, type UserInterface } from "@/form_schema"
 import { CheckSquare, LogIn, UserPlus, ArrowLeft } from "lucide-react"
 
-interface LoginFormProps {
-  onLogin: (user: UserInterface) => void
-  onRegister: (user: User) => void
-}
-
-export function LoginForm({ onLogin, onRegister }: LoginFormProps) {
+export function LoginForm() {
   const [mode, setMode] = useState<"login" | "register">("login")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -22,6 +17,7 @@ export function LoginForm({ onLogin, onRegister }: LoginFormProps) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   const resetForm = () => {
     setEmail("")
@@ -32,69 +28,91 @@ export function LoginForm({ onLogin, onRegister }: LoginFormProps) {
     setSuccess("")
   }
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    const user = mockUsers.find((u) => u.email === email)
-    if (user) {
-      onLogin(user)
-    } else {
-      setError("Usuario nao encontrado. Tente: maria@email.com, joao@email.com ou admin@email.com")
+    setError("")
+    setIsLoading(true)
+
+    try {
+      const result = await signIn("credentials", {
+        username: email,
+        password: password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        setError("Credenciais invalidas. Verifique seu email e senha.")
+      }
+    } catch {
+      setError("Erro ao fazer login. Tente novamente.")
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+    setError("")
+    setIsLoading(true)
+
     if (!name.trim()) {
       setError("Por favor, informe seu nome")
+      setIsLoading(false)
       return
     }
-    
+
     if (!email.trim()) {
       setError("Por favor, informe seu email")
+      setIsLoading(false)
       return
     }
-    
+
     if (!password.trim() || password.length < 6) {
       setError("A senha deve ter pelo menos 6 caracteres")
+      setIsLoading(false)
       return
     }
 
-    const existingUser = mockUsers.find((u) => u.email === email)
-    if (existingUser) {
-      setError("Este email ja esta cadastrado")
-      return
-    }
-
-    const newUser: User = {
-      name: name.trim(),
-      email: email.trim(),
-      password: password.trim(),
-      isAdmin: isAdmin
-    }
-
-    mockUsers.push({
-      id: `user-${mockUsers.length + 1}`,
-      name: newUser.name,
-      email: newUser.email,
-      password: newUser.password,
-      isAdmin: newUser.isAdmin
-    })
-    onRegister(newUser)
-    setSuccess("Conta criada com sucesso!")
-    
-    setTimeout(() => {
-      onLogin({
-        id: `user-${mockUsers.length}`,
-        name: newUser.name,
-        email: newUser.email,
-        isAdmin: newUser.isAdmin
+    try {
+      const response = await fetch("/api/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          password: password.trim(),
+          isAdmin: isAdmin,
+        }),
       })
-    }, 1000)
-  }
 
-  const handleQuickLogin = (user: UserInterface) => {
-    onLogin(user)
+      if (!response.ok) {
+        const data = await response.json()
+        setError(data.error || "Erro ao criar conta")
+        setIsLoading(false)
+        return
+      }
+
+      setSuccess("Conta criada com sucesso! Fazendo login...")
+
+      // Auto login after registration
+      setTimeout(async () => {
+        const result = await signIn("credentials", {
+          username: email.trim(),
+          password: password.trim(),
+          redirect: false,
+        })
+
+        if (result?.error) {
+          setError("Conta criada, mas erro ao fazer login automatico. Tente fazer login manualmente.")
+        }
+        setIsLoading(false)
+      }, 1000)
+    } catch {
+      setError("Erro ao criar conta. Tente novamente.")
+      setIsLoading(false)
+    }
   }
 
   const switchMode = (newMode: "login" | "register") => {
@@ -131,6 +149,7 @@ export function LoginForm({ onLogin, onRegister }: LoginFormProps) {
                       setName(e.target.value)
                       setError("")
                     }}
+                    disabled={isLoading}
                   />
                 </Field>
                 <Field>
@@ -144,6 +163,7 @@ export function LoginForm({ onLogin, onRegister }: LoginFormProps) {
                       setEmail(e.target.value)
                       setError("")
                     }}
+                    disabled={isLoading}
                   />
                 </Field>
                 <Field>
@@ -157,6 +177,7 @@ export function LoginForm({ onLogin, onRegister }: LoginFormProps) {
                       setPassword(e.target.value)
                       setError("")
                     }}
+                    disabled={isLoading}
                   />
                 </Field>
               </FieldGroup>
@@ -166,6 +187,7 @@ export function LoginForm({ onLogin, onRegister }: LoginFormProps) {
                   id="isAdmin"
                   checked={isAdmin}
                   onCheckedChange={(checked) => setIsAdmin(checked === true)}
+                  disabled={isLoading}
                 />
                 <div className="flex-1">
                   <label htmlFor="isAdmin" className="text-sm font-medium cursor-pointer">
@@ -185,9 +207,9 @@ export function LoginForm({ onLogin, onRegister }: LoginFormProps) {
                 <p className="text-sm text-green-700 bg-green-50 p-3 rounded-lg">{success}</p>
               )}
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 <UserPlus className="mr-2 h-4 w-4" />
-                Criar conta
+                {isLoading ? "Criando conta..." : "Criar conta"}
               </Button>
             </form>
 
@@ -196,6 +218,7 @@ export function LoginForm({ onLogin, onRegister }: LoginFormProps) {
                 variant="ghost"
                 className="w-full"
                 onClick={() => switchMode("login")}
+                disabled={isLoading}
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Ja tenho uma conta
@@ -235,6 +258,7 @@ export function LoginForm({ onLogin, onRegister }: LoginFormProps) {
                     setEmail(e.target.value)
                     setError("")
                   }}
+                  disabled={isLoading}
                 />
               </Field>
               <Field>
@@ -245,6 +269,7 @@ export function LoginForm({ onLogin, onRegister }: LoginFormProps) {
                   placeholder="********"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
                 />
               </Field>
             </FieldGroup>
@@ -253,9 +278,9 @@ export function LoginForm({ onLogin, onRegister }: LoginFormProps) {
               <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">{error}</p>
             )}
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={isLoading}>
               <LogIn className="mr-2 h-4 w-4" />
-              Entrar
+              {isLoading ? "Entrando..." : "Entrar"}
             </Button>
           </form>
 
@@ -264,63 +289,11 @@ export function LoginForm({ onLogin, onRegister }: LoginFormProps) {
               variant="outline"
               className="w-full"
               onClick={() => switchMode("register")}
+              disabled={isLoading}
             >
               <UserPlus className="mr-2 h-4 w-4" />
               Criar nova conta
             </Button>
-          </div>
-
-          <div className="mt-6">
-            <p className="text-sm text-muted-foreground text-center mb-3">
-              Acesso rapido para demonstracao:
-            </p>
-            <div className="flex flex-col gap-2">
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() => handleQuickLogin(mockUsers[0])}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
-                    M
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium">Maria Silva</p>
-                    <p className="text-xs text-muted-foreground">Usuario padrao</p>
-                  </div>
-                </div>
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() => handleQuickLogin(mockUsers[1])}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
-                    J
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium">Joao Santos</p>
-                    <p className="text-xs text-muted-foreground">Usuario padrao</p>
-                  </div>
-                </div>
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start border-primary/30 bg-primary/5"
-                onClick={() => handleQuickLogin(mockUsers[2])}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium">
-                    A
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium">Admin</p>
-                    <p className="text-xs text-muted-foreground">Administrador - ve todas as tarefas</p>
-                  </div>
-                </div>
-              </Button>
-            </div>
           </div>
         </CardContent>
       </Card>

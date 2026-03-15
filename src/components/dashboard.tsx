@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Header } from "@/components/header"
 import { TaskCard } from "@/components/task-card"
 import { CreateTaskForm } from "@/components/create-task-form"
@@ -8,17 +8,13 @@ import { StatsCards } from "@/components/stats-cards"
 import { TaskFilters } from "@/components/task-filters"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Spinner } from "@/components/ui/spinner"
 import {
-  type Task,
   type TaskStatus,
-  type User,
   type UserInterface,
   type TaskInterface,
-  initialTasks,
-  mockUsers,
 } from "@/form_schema"
 import { Users, ListTodo } from "lucide-react"
-import { fr } from "zod/v4/locales"
 
 interface DashboardProps {
   user: UserInterface
@@ -26,11 +22,79 @@ interface DashboardProps {
 }
 
 export function Dashboard({ user, onLogout }: DashboardProps) {
-  const [tasks, setTasks] = useState<TaskInterface[]>(initialTasks)
+  const [tasks, setTasks] = useState<TaskInterface[]>([])
+  const [allUsers, setAllUsers] = useState<UserInterface[]>([])
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all")
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState("")
 
   const isAdmin = user.isAdmin
+
+  // Fetch tasks from API
+  useEffect(() => {
+    const fetchTasks = async () => {
+      setIsLoading(true)
+      setError("")
+      try {
+        const response = await fetch("/api/task")
+        if (!response.ok) {
+          throw new Error("Falha ao carregar tarefas")
+        }
+        const data = await response.json()
+        
+        // Map API response to TaskInterface
+        const mappedTasks: TaskInterface[] = data.map((task: {
+          id: string
+          title: string
+          description: string
+          status: TaskStatus
+          priority: "LOW" | "MEDIUM" | "HIGH"
+          deadline: string
+          craeatedAt?: string
+          created_at?: string
+          userId: string
+          user?: { name: string }
+        }) => ({
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          status: task.status as TaskStatus,
+          priority: task.priority,
+          deadline: task.deadline ? new Date(task.deadline).toISOString().split('T')[0] : "",
+          created_at: task.craeatedAt || task.created_at || new Date().toISOString(),
+          user_id: task.userId,
+          user_name: task.user?.name || "Usuario",
+        }))
+        
+        setTasks(mappedTasks)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Erro ao carregar tarefas")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchTasks()
+  }, [])
+
+  // Fetch all users if admin
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!isAdmin) return
+      try {
+        const response = await fetch("/api/user")
+        if (response.ok) {
+          const data = await response.json()
+          setAllUsers(data)
+        }
+      } catch (err) {
+        console.error("Error fetching users:", err)
+      }
+    }
+
+    fetchUsers()
+  }, [isAdmin])
 
   // Filter tasks based on user role
   const userTasks = useMemo(() => {
@@ -56,7 +120,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
     const grouped: Record<string, { user: UserInterface; tasks: TaskInterface[] }> = {}
     filteredTasks.forEach((task) => {
       if (!grouped[task.user_id]) {
-        const taskUser = mockUsers.find((u) => u.id === task.user_id)
+        const taskUser = allUsers.find((u) => u.id === task.user_id)
         grouped[task.user_id] = {
           user: taskUser || { id: task.user_id, name: task.user_name, email: "", isAdmin: false },
           tasks: [],
@@ -65,20 +129,89 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       grouped[task.user_id].tasks.push(task)
     })
     return grouped
-  }, [filteredTasks, isAdmin])
+  }, [filteredTasks, isAdmin, allUsers])
 
   const handleCreateTask = (newTask: TaskInterface) => {
     setTasks((prev) => [newTask, ...prev])
   }
 
-  const handleUpdateTask = (id: string, updates: Partial<Task>) => {
-    setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, ...updates } : task))
+  const handleUpdateTask = async (id: string, updates: Partial<TaskInterface>) => {
+    try {
+      const response = await fetch(`/api/task/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...updates,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            isAdmin: user.isAdmin,
+          },
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Falha ao atualizar tarefa")
+      }
+
+      setTasks((prev) =>
+        prev.map((task) => (task.id === id ? { ...task, ...updates } : task))
+      )
+    } catch (err) {
+      console.error("Error updating task:", err)
+    }
+  }
+
+  const handleDeleteTask = async (id: string) => {
+    try {
+      const response = await fetch(`/api/task/${id}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error("Falha ao excluir tarefa")
+      }
+
+      setTasks((prev) => prev.filter((task) => task.id !== id))
+    } catch (err) {
+      console.error("Error deleting task:", err)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header user={user} onLogout={onLogout} />
+        <main className="container mx-auto px-4 py-6 flex items-center justify-center min-h-[60vh]">
+          <div className="flex flex-col items-center gap-4">
+            <Spinner className="h-8 w-8" />
+            <p className="text-muted-foreground">Carregando tarefas...</p>
+          </div>
+        </main>
+      </div>
     )
   }
 
-  const handleDeleteTask = (id: string) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id))
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header user={user} onLogout={onLogout} />
+        <main className="container mx-auto px-4 py-6 flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <p className="text-destructive mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-primary underline"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -90,7 +223,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-foreground">
-              {isAdmin ? "Painel Administrativo" : `Olá, ${user.name.split(" ")[0]}!`}
+              {isAdmin ? "Painel Administrativo" : `Ola, ${user.name?.split(" ")[0] || "Usuario"}!`}
             </h1>
             <p className="text-muted-foreground">
               {isAdmin
@@ -122,7 +255,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
               </TabsTrigger>
               <TabsTrigger value="by-user" className="gap-2">
                 <Users className="h-4 w-4" />
-                Por Usuário
+                Por Usuario
               </TabsTrigger>
             </TabsList>
 
@@ -152,7 +285,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                 <div key={userId} className="space-y-3">
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
-                      {taskUser.name.charAt(0).toUpperCase()}
+                      {taskUser.name?.charAt(0)?.toUpperCase() || "U"}
                     </div>
                     <h3 className="font-semibold text-foreground">{taskUser.name}</h3>
                     <Badge variant="secondary">{userTaskList.length} tarefas</Badge>
@@ -182,7 +315,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
             {filteredTasks.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 {userTasks.length === 0
-                  ? "Você ainda não tem tarefas. Crie sua primeira tarefa!"
+                  ? "Voce ainda nao tem tarefas. Crie sua primeira tarefa!"
                   : "Nenhuma tarefa encontrada com os filtros aplicados"}
               </div>
             ) : (

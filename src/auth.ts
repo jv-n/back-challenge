@@ -12,7 +12,7 @@ export const nextAuthOptions: NextAuthConfig = {
             },
 
             async authorize(credentials) {
-                const response = await fetch(`${process.env.NEXTAUTH_URL}/api/users`, {
+                const response = await fetch(`${process.env.NEXTAUTH_URL}/api/user`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
