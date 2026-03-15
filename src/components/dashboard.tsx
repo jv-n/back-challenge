@@ -223,7 +223,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-foreground">
-              {isAdmin ? "Painel Administrativo" : `Ola, ${user.name.split(" ")[0]}!`}
+              {isAdmin ? "Painel Administrativo" : `Ola, ${user.name?.split(" ")[0] || "Usuario"}!`}
             </h1>
             <p className="text-muted-foreground">
               {isAdmin
@@ -285,7 +285,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                 <div key={userId} className="space-y-3">
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
-                      {taskUser.name.charAt(0).toUpperCase()}
+                      {taskUser.name?.charAt(0)?.toUpperCase() || "U"}
                     </div>
                     <h3 className="font-semibold text-foreground">{taskUser.name}</h3>
                     <Badge variant="secondary">{userTaskList.length} tarefas</Badge>

@@ -25,10 +25,10 @@ export default function Home() {
   }
 
   const user: UserInterface = {
-    id: session.id as string,
-    name: session.name as string,
-    email: session.email as string,
-    isAdmin: session.role === "admin",
+    id: (session.user as { id?: string })?.id || session.id as string || "",
+    name: session.user?.name || "",
+    email: session.user?.email || "",
+    isAdmin: (session.user as { role?: string })?.role === "admin" || session.role === "admin",
   }
 
   return <Dashboard user={user} onLogout={() => signOut()} />

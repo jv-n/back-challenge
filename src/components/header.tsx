@@ -10,11 +10,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { type User } from "@/lib/store"
+import { type UserInterface } from "@/form_schema"
 import { CheckSquare, LogOut, User as UserIcon, Shield } from "lucide-react"
 
 interface HeaderProps {
-  user: User
+  user: UserInterface
   onLogout: () => void
 }
 
@@ -27,7 +27,7 @@ export function Header({ user, onLogout }: HeaderProps) {
             <CheckSquare className="h-5 w-5 text-primary-foreground" />
           </div>
           <span className="text-xl font-bold text-foreground">TaskFlow</span>
-          {user.role === "admin" && (
+          {user.isAdmin && (
             <Badge variant="secondary" className="gap-1">
               <Shield className="h-3 w-3" />
               Admin
@@ -39,17 +39,17 @@ export function Header({ user, onLogout }: HeaderProps) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="gap-2">
               <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
-                {user.name.charAt(0).toUpperCase()}
+                {user.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
-              <span className="hidden sm:inline">{user.name}</span>
+              <span className="hidden sm:inline">{user.name || "Usuario"}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user.name}</p>
+                <p className="text-sm font-medium leading-none">{user.name || "Usuario"}</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  {user.email}
+                  {user.email || ""}
                 </p>
               </div>
             </DropdownMenuLabel>
