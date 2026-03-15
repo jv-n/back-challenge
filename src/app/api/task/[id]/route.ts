@@ -1,12 +1,17 @@
 import { UpdateTaskDTO } from "../task-dto";
 import TaskController from "../task-controller";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAuth } from "@/lib/api-auth";
 
 const taskController = new TaskController();
 
 export async function GET( request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+
+    const { session, error } = await requireAuth();
+    if (error) return error;
+
     const { id } = await params;
 
     if(!id) {
@@ -17,6 +22,10 @@ export async function GET( request: NextRequest,
 
     if(!task) {
         return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
+    if (session!.role !== "admin" && task.userId !== session!.id) {
+        return Response.json({ error: "Forbidden" }, { status: 403 });
     }
 
     try {
@@ -30,6 +39,10 @@ export async function GET( request: NextRequest,
 export async function PATCH(request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+
+    const { session, error } = await requireAuth();
+    if (error) return error;
+
     const { id } = await params;
     if(!id) {
         return NextResponse.json({ error: "Task ID is required" }, { status: 400 });
@@ -38,6 +51,10 @@ export async function PATCH(request: NextRequest,
     const existingTask = await taskController.getTaskById(id);
     if(!existingTask) {
         return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
+    if (session!.role !== "admin" && existingTask.userId !== session!.id) {
+        return Response.json({ error: "Forbidden" }, { status: 403 });
     }
 
     try {
@@ -53,6 +70,10 @@ export async function PATCH(request: NextRequest,
 export async function DELETE(request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+
+    const { session, error } = await requireAuth();
+    if (error) return error;
+
     const { id } = await params;
     if(!id) {
         return NextResponse.json({ error: "Task ID is required" }, { status: 400 });
@@ -61,6 +82,10 @@ export async function DELETE(request: NextRequest,
     const existingTask = await taskController.getTaskById(id);
     if(!existingTask) {
         return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
+    if (session!.role !== "admin" && existingTask.userId !== session!.id) {
+        return Response.json({ error: "Forbidden" }, { status: 403 });
     }
 
     try {
