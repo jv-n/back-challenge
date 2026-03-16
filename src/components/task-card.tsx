@@ -22,7 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { FieldGroup, Field, FieldLabel } from "@/components/ui/field"
-import { type TaskInterface, type TaskStatus, type TaskPriority } from "@/form_schema"
+import { type TaskInterface, type TaskStatus, type TaskPriority } from "@/lib/interfaces"
 import {
   Calendar,
   Clock,

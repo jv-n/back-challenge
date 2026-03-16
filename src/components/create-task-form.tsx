@@ -21,7 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { FieldGroup, Field, FieldLabel } from "@/components/ui/field"
-import { type UserInterface, type TaskInterface, type TaskPriority } from "@/form_schema"
+import { type UserInterface, type TaskInterface, type TaskPriority } from "@/lib/interfaces"
 import { Plus, Loader2, Upload, X, FileIcon } from "lucide-react"
 
 interface CreateTaskFormProps {

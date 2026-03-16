@@ -4,7 +4,7 @@
 import { useSession, signIn, signOut } from "next-auth/react"
 import { LoginForm } from "@/components/login-form"
 import { Dashboard } from "@/components/dashboard"
-import { type UserInterface } from "@/form_schema"
+import { type UserInterface } from "@/lib/interfaces"
 
 export default function Home() {
   const { data: session, status } = useSession()

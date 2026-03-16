@@ -13,7 +13,7 @@ import {
   type TaskStatus,
   type UserInterface,
   type TaskInterface,
-} from "@/form_schema"
+} from "@/lib/interfaces"
 import { Users, ListTodo } from "lucide-react"
 
 interface DashboardProps {

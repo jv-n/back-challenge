@@ -1,21 +1,21 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { type Task } from "@/lib/store"
+import { TaskInterface } from "@/lib/interfaces"
 import { ListTodo, Clock, CheckCircle2, AlertTriangle } from "lucide-react"
 
 interface StatsCardsProps {
-  tasks: Task[]
+  tasks: TaskInterface[]
 }
 
 export function StatsCards({ tasks }: StatsCardsProps) {
   const stats = {
     total: tasks.length,
-    pending: tasks.filter((t) => t.status === "pending").length,
-    inProgress: tasks.filter((t) => t.status === "in_progress").length,
-    completed: tasks.filter((t) => t.status === "completed").length,
+    pending: tasks.filter((t) => t.status === "PENDING").length,
+    inProgress: tasks.filter((t) => t.status === "IN_PROGRESS").length,
+    completed: tasks.filter((t) => t.status === "DONE").length,
     overdue: tasks.filter(
-      (t) => t.due_date && new Date(t.due_date) < new Date() && t.status !== "completed"
+      (t) => t.deadline && new Date(t.deadline) < new Date() && t.status !== "DONE"
     ).length,
   }
 

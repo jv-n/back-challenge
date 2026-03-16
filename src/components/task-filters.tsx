@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { type TaskStatus } from "@/lib/store"
+import { type TaskStatus } from "@/lib/interfaces"
 import { Search } from "lucide-react"
 
 interface TaskFiltersProps {

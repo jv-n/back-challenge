@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { type UserInterface } from "@/form_schema"
+import { type UserInterface } from "@/lib/interfaces"
 import { CheckSquare, LogOut, User as UserIcon, Shield } from "lucide-react"
 
 interface HeaderProps {
