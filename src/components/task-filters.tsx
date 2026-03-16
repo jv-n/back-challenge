@@ -44,9 +44,9 @@ export function TaskFilters({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos os status</SelectItem>
-          <SelectItem value="pending">Pendentes</SelectItem>
-          <SelectItem value="in_progress">Em andamento</SelectItem>
-          <SelectItem value="completed">Concluídas</SelectItem>
+          <SelectItem value="PENDING">Pendentes</SelectItem>
+          <SelectItem value="IN_PROGRESS">Em andamento</SelectItem>
+          <SelectItem value="DONE">Concluídas</SelectItem>
         </SelectContent>
       </Select>
     </div>

@@ -18,6 +18,5 @@ export type UpdateTaskDTO = {
     status?: "PENDING" | "IN_PROGRESS" | "DONE";
     deadline?: string;
     fileUrl?: string;
-    user: UserModel
 };
 

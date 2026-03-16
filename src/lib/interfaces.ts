@@ -1,8 +1,6 @@
 export type TaskStatus = "PENDING" | "IN_PROGRESS" | "DONE"
 export type TaskPriority = "LOW" | "MEDIUM" | "HIGH"
 
-// Interface represents the model in database 
-
 export interface UserInterface {
   id: string
   name: string

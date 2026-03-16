@@ -36,7 +36,7 @@ export class TaskService {
     }
 
     async getTasksByUserId(userId: string) {
-        return await this.prisma.task.findMany({ where: { userId } });
+        return await this.prisma.task.findMany({ where: { userId }, include: { user: true } });
     }
 
     async updateTask(id: string, data: UpdateTaskDTO) {
@@ -47,8 +47,7 @@ export class TaskService {
                 priority: data.priority,
                 status: data.status,
                 deadline: data.deadline ? new Date(data.deadline) : undefined,
-                fileUrl: data.fileUrl,
-                user: { connect: { id: data.user.id } }    
+                fileUrl: data.fileUrl, 
             } 
         });
     }

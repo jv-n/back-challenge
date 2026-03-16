@@ -37,7 +37,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       setIsLoading(true)
       setError("")
       try {
-        const response = await fetch("/api/task")
+        const response = await fetch("/api/task", { method: "GET" })
         if (!response.ok) {
           throw new Error("Falha ao carregar tarefas")
         }
@@ -98,7 +98,6 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
     fetchUsers()
   }, [isAdmin])
 
-  // Filter tasks based on user role
   const userTasks = useMemo(() => {
     if (isAdmin) return tasks
     return tasks.filter((task) => task.user_id === user.id)
@@ -140,18 +139,12 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
   const handleUpdateTask = async (id: string, updates: Partial<TaskInterface>) => {
     try {
       const response = await fetch(`/api/task/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...updates,
-          user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            isAdmin: user.isAdmin,
-          },
+          ...updates
         }),
       })
 
