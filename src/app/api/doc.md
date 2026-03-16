@@ -37,7 +37,7 @@ Retrieves all users or a specific user by email.
 **Query Parameters:**
 
 | Parameter | Type | Required | Description
-|-----|-----
+|-----|-----|------|-----|
 | `email` | string | No | Filter by user email
 
 
@@ -118,7 +118,7 @@ Retrieves a specific user by ID.
 **Path Parameters:**
 
 | Parameter | Type | Description
-|-----|-----
+|-----|-----|-----
 | `id` | string | User ID
 
 
@@ -145,7 +145,7 @@ Updates a user's information.
 **Path Parameters:**
 
 | Parameter | Type | Description
-|-----|-----
+|-----|-----|-----
 | `id` | string | User ID
 
 
@@ -186,7 +186,7 @@ Deletes a user.
 **Path Parameters:**
 
 | Parameter | Type | Description
-|-----|-----
+|-----|-----|-----
 | `id` | string | User ID
 
 
@@ -214,7 +214,7 @@ Retrieves tasks based on user role and query parameters.
 **Query Parameters:**
 
 | Parameter | Type | Required | Description
-|-----|-----
+|-----|-----|-----|-----
 | `userId` | string | No | Filter tasks by user ID (Admin only for other users)
 
 
@@ -277,7 +277,7 @@ Retrieves a specific task by ID.
 **Path Parameters:**
 
 | Parameter | Type | Description
-|-----|-----
+|-----|-----|-----
 | `id` | string | Task ID
 
 
@@ -304,7 +304,7 @@ Updates a specific task.
 **Path Parameters:**
 
 | Parameter | Type | Description
-|-----|-----
+|-----|-----|-----
 | `id` | string | Task ID
 
 
@@ -344,7 +344,7 @@ Deletes a specific task.
 **Path Parameters:**
 
 | Parameter | Type | Description
-|-----|-----
+|-----|-----|-----
 | `id` | string | Task ID
 
 
@@ -373,7 +373,7 @@ Uploads a file to Supabase storage.
 **Request:** `multipart/form-data`
 
 | Field | Type | Description
-|-----|-----
+|-----|-----|-----
 | `file` | File | The file to upload
 
 
@@ -408,7 +408,7 @@ Uploads a file to Supabase storage.
 ## Summary Table
 
 | Endpoint | Method | Auth | Role | Description
-|-----|-----
+|-----|-----|-----|-----|-----
 | `/api/auth/[...nextauth]` | GET/POST | - | - | NextAuth handlers
 | `/api/user` | GET | Yes | Admin | List users / Get by email
 | `/api/user` | POST | No | - | Login verification
