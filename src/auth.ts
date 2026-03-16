@@ -3,6 +3,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const nextAuthOptions: NextAuthConfig = {
+    secret: process.env.NEXTAUTH_SECRET || "development-secret-change-in-production",
     providers: [
         CredentialsProvider({
             name: "Credentials",
@@ -36,18 +37,28 @@ export const nextAuthOptions: NextAuthConfig = {
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                token.user = user; // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                token.role = (user as any).isAdmin ? "admin" : "user";
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const userData = user as any;
+                token.id = userData.id;
+                token.name = userData.name;
+                token.email = userData.email;
+                token.role = userData.isAdmin ? "admin" : "user";
             }
             return token;
         },
 
-        async session({ session, token }) {         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            session = token.user as any;
-            session.role = token.role as "admin" | "user";
+        async session({ session, token }) {
+            if (session.user) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (session.user as any).id = token.id;
+                session.user.name = token.name as string;
+                session.user.email = token.email as string;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (session as any).role = token.role;
+            }
             return session;
         },
     },
 };
 
-export const { auth, signIn, signOut } = NextAuth(nextAuthOptions);
+export const { auth, signIn, signOut, handlers } = NextAuth(nextAuthOptions);

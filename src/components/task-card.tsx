@@ -32,6 +32,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Circle,
+  FileIcon,
+  ExternalLink,
 } from "lucide-react"
 
 interface TaskCardProps {
@@ -161,6 +163,18 @@ export function TaskCard({ task, onUpdate, onDelete, canEdit, showOwner = false 
               {isOverdue ? "Atrasada: " : "Vencimento: "}
               {formatDate(task.deadline)}
             </div>
+          )}
+          {task.fileUrl && (
+            <a
+              href={task.fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-primary hover:underline"
+            >
+              <FileIcon className="h-3 w-3" />
+              Arquivo anexo
+              <ExternalLink className="h-3 w-3" />
+            </a>
           )}
         </CardContent>
       </Card>

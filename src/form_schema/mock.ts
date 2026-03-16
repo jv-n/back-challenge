@@ -22,6 +22,7 @@ export interface TaskInterface {
   created_at: string
   user_id: string
   user_name: string
+  fileUrl?: string
 }
 
 // Mock users for texting

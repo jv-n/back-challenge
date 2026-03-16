@@ -24,12 +24,16 @@ export default function Home() {
     return <LoginForm />
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sessionAny = session as any
   const user: UserInterface = {
-    id: (session.user as { id?: string })?.id || session.id as string || "",
-    name: session.user?.name || "",
-    email: session.user?.email || "",
-    isAdmin: (session.user as { role?: string })?.role === "admin" || session.role === "admin",
+    id: session.user?.id || sessionAny?.id || "",
+    name: session.user?.name || sessionAny?.name || "",
+    email: session.user?.email || sessionAny?.email || "",
+    isAdmin: sessionAny?.role === "admin",
   }
 
-  return <Dashboard user={user} onLogout={() => signOut()} />
+  return <Dashboard user={user} onLogout={() => signOut({
+     callbackUrl: "/"
+  })} />
 }

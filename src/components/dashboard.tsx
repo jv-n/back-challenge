@@ -55,6 +55,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
           created_at?: string
           userId: string
           user?: { name: string }
+          fileUrl?: string
         }) => ({
           id: task.id,
           title: task.title,
@@ -65,6 +66,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
           created_at: task.craeatedAt || task.created_at || new Date().toISOString(),
           user_id: task.userId,
           user_name: task.user?.name || "Usuario",
+          fileUrl: task.fileUrl,
         }))
         
         setTasks(mappedTasks)
@@ -231,7 +233,12 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                 : "Gerencie suas tarefas pessoais"}
             </p>
           </div>
-          {!isAdmin && <CreateTaskForm user={user} onCreateTask={handleCreateTask} />}
+          <CreateTaskForm 
+            user={user} 
+            onCreateTask={handleCreateTask}
+            allUsers={allUsers}
+            isAdmin={isAdmin}
+          />
         </div>
 
         {/* Stats */}
