@@ -1,13 +1,12 @@
 import UserController from "./user-controller";
-import { UserDTO } from "./user-dto";
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth, requireAdmin } from "@/lib/api-auth";
+import { requireAdmin } from "@/lib/api-auth";
 import bcrypt from "bcrypt";
 
 const userController = new UserController();
 
 export async function GET(request: NextRequest) {
-    const { session, error } = await requireAdmin();
+    const { error } = await requireAdmin();
     if (error) return error;
 
     const searchParams = request.nextUrl.searchParams;

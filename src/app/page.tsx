@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useSession, signIn, signOut } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import { LoginForm } from "@/components/login-form"
 import { Dashboard } from "@/components/dashboard"
 import { type UserInterface } from "@/lib/interfaces"
