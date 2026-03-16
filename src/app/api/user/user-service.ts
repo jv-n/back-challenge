@@ -4,7 +4,7 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import bcrypt from 'bcrypt';
 
 const adapter = new PrismaPg({
-  connectionString: process.env.POSTGRES_URL!,
+  connectionString: process.env.DATABASE_URL!,
 });
 
 export class UserService {
